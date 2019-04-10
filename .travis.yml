@@ -1,0 +1,17 @@
+language: go
+
+go:
+  - "1.12"
+  - master
+
+install: true
+
+before_script:
+  - go get golang.org/x/lint/golint
+  - go mod vendor
+
+script:
+  - go test -v -cover ./...
+  - go vet ./...
+  - golint -set_exit_status $(go list ./... | grep -v /vendor/)
+
