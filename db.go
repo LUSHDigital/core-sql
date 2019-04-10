@@ -12,12 +12,12 @@ type DB struct {
 }
 
 // Open will attempt to open a new database connection.
-func Open(u string) (*sql.DB, error) {
+func Open(u string) (*DB, error) {
 	db, err := dburl.Open(u)
 	if err != nil {
 		return nil, err
 	}
-	return db, nil
+	return &DB{db}, nil
 }
 
 // Check will attempt to ping the database to see if the connection is still alive.
