@@ -2,6 +2,7 @@ package coresql
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/xo/dburl"
 )
@@ -18,6 +19,15 @@ func Open(u string) (*DB, error) {
 		return nil, err
 	}
 	return &DB{db}, nil
+}
+
+// MustOpen will crash your program unless a database could be retrieved.
+func MustOpen(u string) *DB {
+	db, err := Open(u)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return db
 }
 
 // Check will attempt to ping the database to see if the connection is still alive.
