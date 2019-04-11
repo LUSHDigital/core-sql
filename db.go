@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"github.com/golang-migrate/migrate"
+	"github.com/golang-migrate/migrate/v4"
 	"github.com/xo/dburl"
 )
 
