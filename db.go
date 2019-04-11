@@ -2,10 +2,10 @@ package coresql
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/xo/dburl"
 )
 
 // DB represents a wrapper for SQL DB providing extra methods.
@@ -22,17 +22,17 @@ func (db *DB) Check() ([]string, bool) {
 }
 
 // Open will attempt to open a new database connection.
-func Open(databaseURL string) (*DB, error) {
-	database, err := dburl.Open(databaseURL)
+func Open(driverName, dsn string) (*DB, error) {
+	db, err := sql.Open(driverName, dsn)
 	if err != nil {
 		return nil, err
 	}
-	return &DB{database}, nil
+	return &DB{db}, nil
 }
 
 // MustOpen will crash your program unless a database could be retrieved.
-func MustOpen(databaseURL string) *DB {
-	db, err := Open(databaseURL)
+func MustOpen(driverName, dsn string) *DB {
+	db, err := Open(driverName, dsn)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -40,12 +40,12 @@ func MustOpen(databaseURL string) *DB {
 }
 
 // OpenWithMigrations opens a database connection with an associated migration instance.
-func OpenWithMigrations(databaseURL, migrationsURL string) (*DB, *migrate.Migrate, error) {
-	migration, err := migrate.New(migrationsURL, databaseURL)
+func OpenWithMigrations(driverName, dsn, sourceURL string) (*DB, *migrate.Migrate, error) {
+	migration, err := migrate.New(sourceURL, fmt.Sprintf("%s://%s", driverName, dsn))
 	if err != nil {
 		return nil, nil, err
 	}
-	database, err := Open(databaseURL)
+	database, err := Open(driverName, dsn)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -53,8 +53,8 @@ func OpenWithMigrations(databaseURL, migrationsURL string) (*DB, *migrate.Migrat
 }
 
 // MustOpenWithMigrations opens a database connection with an associated migration instance and crashes if unsuccessful.
-func MustOpenWithMigrations(databaseURL, migrationsURL string) (*DB, *migrate.Migrate) {
-	database, migrations, err := OpenWithMigrations(databaseURL, migrationsURL)
+func MustOpenWithMigrations(driverName, dsn, sourceURL string) (*DB, *migrate.Migrate) {
+	database, migrations, err := OpenWithMigrations(driverName, dsn, sourceURL)
 	if err != nil {
 		log.Fatalln(err)
 	}
