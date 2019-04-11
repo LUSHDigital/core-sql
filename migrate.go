@@ -3,6 +3,7 @@ package coresql
 import (
 	"flag"
 	"log"
+	"os"
 )
 
 // Migrate represents functionality for
@@ -11,8 +12,8 @@ type Migrate interface {
 	Down() error
 }
 
-// HandleMigrationArguments should be invoked to handle command line arguments for running migrations.
-func HandleMigrationArguments(migrate Migrate) {
+// HandleMigrationArgs should be invoked to handle command line arguments for running migrations.
+func HandleMigrationArgs(migrate Migrate) {
 	switch flag.Arg(1) {
 	case "migrate":
 		switch flag.Arg(2) {
@@ -27,6 +28,8 @@ func HandleMigrationArguments(migrate Migrate) {
 		default:
 			log.Fatalln("need to provide a command to 'migrate'")
 		}
+		os.Exit(0)
+		return
 	}
 }
 
