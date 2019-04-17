@@ -27,6 +27,8 @@ func Open(driverName, dsn string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	// see: https://github.com/go-sql-driver/mysql/issues/674
+	db.SetMaxIdleConns(0)
 	return &DB{db}, nil
 }
 
