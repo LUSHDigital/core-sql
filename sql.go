@@ -29,14 +29,36 @@ type Preparer interface {
 	Prepare(query string) (*sql.Stmt, error)
 }
 
-// Querier defines a common set of methods for querying an SQL database.
-type Querier interface {
+// Transactor defines a common set of methods for working with database transactions.
+type Transactor interface {
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
 	Begin() (*sql.Tx, error)
+}
+
+// Executor defines a common set of methods for executing stored procedures, statements or queries.
+type Executor interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
 	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
+// Querier defines a common set of methods for querying an SQL database.
+type Querier interface {
 	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
 	Query(query string, args ...interface{}) (*sql.Rows, error)
 	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
 	QueryRow(query string, args ...interface{}) *sql.Row
+}
+
+// Agent defines a common set of methods for interacting with the data in an SQL database.
+type Agent interface {
+	Preparer
+	Transactor
+	Executor
+	Querier
+}
+
+// Operator defines a common set of methods for operating a connection with an SQL database.
+type Operator interface {
+	Pinger
+	Connector
 }
