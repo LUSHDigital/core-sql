@@ -1,4 +1,4 @@
-package coresql
+package sqlexec
 
 import (
 	"context"
