@@ -60,8 +60,8 @@ func (tr *Truncator) TruncateAll(t testing.TB) error {
 }
 
 // MustTruncateTables will run TruncateTables and will fail test if it can't.
-func (tr *Truncator) MustTruncateTables(t testing.TB) {
-	if err := tr.TruncateTables(t); err != nil {
+func (tr *Truncator) MustTruncateTables(t testing.TB, tables ...string) {
+	if err := tr.TruncateTables(t, tables...); err != nil {
 		t.Error(err)
 	}
 }
