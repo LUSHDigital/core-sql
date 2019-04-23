@@ -3,13 +3,14 @@ package sqltest
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"testing"
 	"time"
 )
 
 const (
 	setForeignKeysStmt = "SET FOREIGN_KEY_CHECKS=?"
-	truncateStmt       = "TRUNCATE TABLE ?"
+	truncateStmtFmt    = "TRUNCATE TABLE %s"
 	showTablesStmt     = "SHOW TABLES"
 )
 
@@ -74,7 +75,7 @@ func (tr *Truncator) TruncateTables(t testing.TB, tables ...string) error {
 		return err
 	}
 	for _, table := range tables {
-		if _, err := tr.agent.ExecContext(ctx, truncateStmt, table); err != nil {
+		if _, err := tr.agent.ExecContext(ctx, fmt.Sprintf(truncateStmtFmt, table)); err != nil {
 			return err
 		}
 	}

@@ -18,9 +18,9 @@ func TestTruncator_TruncateTables(t *testing.T) {
 	tables := []string{"markets", "products", "ingredients"}
 
 	mock.ExpectExec("SET FOREIGN_KEY_CHECKS=?").WithArgs(false).WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("TRUNCATE TABLE ?").WithArgs("markets").WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("TRUNCATE TABLE ?").WithArgs("products").WillReturnResult(sqlmock.NewResult(1, 1))
-	mock.ExpectExec("TRUNCATE TABLE ?").WithArgs("ingredients").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("TRUNCATE TABLE markets").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("TRUNCATE TABLE products").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("TRUNCATE TABLE ingredients").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("SET FOREIGN_KEY_CHECKS=?").WithArgs(true).WillReturnResult(sqlmock.NewResult(1, 1))
 
 	truncator := sqltest.NewTruncator(db)
