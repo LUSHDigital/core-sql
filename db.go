@@ -1,9 +1,11 @@
 package coresql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 
@@ -11,6 +13,12 @@ import (
 	// it's prudent that we include this side effect inside of this package and not
 	// having to import it inside each and every project.
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+)
+
+const (
+	waitMaxTries = 60
+	waitTimeout  = 5 * time.Second
+	waitCooldown = 10 * time.Millisecond
 )
 
 // DB represents a wrapper for SQL DB providing extra methods.
@@ -24,6 +32,48 @@ func (db *DB) Check() ([]string, bool) {
 		return []string{err.Error()}, false
 	}
 	return []string{"database connection ok"}, true
+}
+
+// MustWait will call the Wait method and crash if it cant be performed.
+func (db *DB) MustWait() {
+	if err := db.Wait(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Wait will attempt to connect to a database and block until it connects.
+func (db *DB) Wait() error {
+	ctx, cancel := context.WithTimeout(context.Background(), waitTimeout)
+	defer cancel()
+
+	tries := 0
+	doneC := make(chan struct{}, 1)
+	sem := make(chan struct{}, 1)
+
+	ping := func(ctx context.Context) {
+		err := db.PingContext(ctx)
+		if err == nil {
+			doneC <- struct{}{}
+			return
+		}
+		time.Sleep(waitCooldown)
+		tries++
+		<-sem
+	}
+
+	for {
+		select {
+		case sem <- struct{}{}:
+			if tries >= waitMaxTries {
+				return fmt.Errorf("could not connect to datavase: attempt limit (%d) exceeded", waitMaxTries)
+			}
+			go ping(ctx)
+		case <-ctx.Done():
+			return fmt.Errorf("could not connect to database: timeout")
+		case <-doneC:
+			return nil
+		}
+	}
 }
 
 // Open will attempt to open a new database connection.
