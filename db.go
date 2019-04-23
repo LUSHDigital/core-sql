@@ -34,8 +34,15 @@ func (db *DB) Check() ([]string, bool) {
 	return []string{"database connection ok"}, true
 }
 
+// MustWait will call the Wait method and crash if it cant be performed.
+func (db *DB) MustWait() {
+	if err := db.Wait(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 // Wait will attempt to connect to a database and block until it connects.
-func (db *DB) Wait() {
+func (db *DB) Wait() error {
 	ctx, cancel := context.WithTimeout(context.Background(), waitTimeout)
 	defer cancel()
 
@@ -58,15 +65,13 @@ func (db *DB) Wait() {
 		select {
 		case sem <- struct{}{}:
 			if tries >= waitMaxTries {
-				log.Fatalf("could not connect to datavase: attempt limit (%d) exceeded", waitMaxTries)
-				return
+				return fmt.Errorf("could not connect to datavase: attempt limit (%d) exceeded", waitMaxTries)
 			}
 			go ping(ctx)
-		case <-doneC:
-			return
 		case <-ctx.Done():
-			log.Fatal("could not connect to database: timeout")
-			return
+			return fmt.Errorf("could not connect to database: timeout")
+		case <-doneC:
+			return nil
 		}
 	}
 }
