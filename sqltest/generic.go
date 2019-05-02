@@ -56,7 +56,7 @@ func truncateAll(t testing.TB, tr Truncator, agent Agent) error {
 		var table string
 		rows.Scan(&table)
 		switch table {
-		case "schema_migrations":
+		case "schema_migrations", "schema_lock":
 		default:
 			tables = append(tables, table)
 		}
