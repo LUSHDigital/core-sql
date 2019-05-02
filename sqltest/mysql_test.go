@@ -8,7 +8,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-func TestTruncator_TruncateTables(t *testing.T) {
+func TestMySQLTruncator_TruncateTables(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -23,7 +23,7 @@ func TestTruncator_TruncateTables(t *testing.T) {
 	mock.ExpectExec("TRUNCATE TABLE ingredients").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("SET FOREIGN_KEY_CHECKS=?").WithArgs(true).WillReturnResult(sqlmock.NewResult(1, 1))
 
-	truncator := sqltest.NewTruncator(db)
+	truncator := sqltest.NewTruncator("mysql", db)
 	if err := truncator.TruncateTables(t, tables...); err != nil {
 		t.Errorf("the function returned an error: %v", err)
 	}
