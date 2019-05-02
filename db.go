@@ -78,6 +78,11 @@ func (db *DB) Wait() error {
 
 // Open will attempt to open a new database connection.
 func Open(driverName, dsn string) (*DB, error) {
+	switch driverName {
+	case "mysql":
+	default:
+		dsn = fmt.Sprintf("%s://%s", driverName, dsn)
+	}
 	db, err := sql.Open(driverName, dsn)
 	if err != nil {
 		return nil, err
