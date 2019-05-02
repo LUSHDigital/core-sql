@@ -1,6 +1,7 @@
 package coresql
 
 import (
+	"log"
 	"os"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -18,6 +19,17 @@ func CockroachURLFromEnv() string {
 		url = DefaultCockroachURL
 	}
 	return url
+}
+
+// MustOpenCockroachWithMigration opens a cockroach database connection with an associated migration instance
+// and craches if the connection cannot be obtained.
+// This assumes you use a postgres driver like https://github.com/lib/pq to interact with your postgres database.
+func MustOpenCockroachWithMigration(dsn, sourceURL string) (*DB, *migrate.Migrate) {
+	database, migration, err := OpenCockroachWithMigration(dsn, sourceURL)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return database, migration
 }
 
 // OpenCockroachWithMigration opens a cockroach database connection with an associated migration instance.
