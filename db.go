@@ -22,7 +22,8 @@ const (
 	waitCooldown = 10 * time.Millisecond
 )
 
-var dsnParseErr = func(err error) error { return fmt.Errorf("could not parse database dsn: %v", err) }
+var errParseDSN = func(err error) error { return fmt.Errorf("could not parse database dsn: %v", err) }
+var errTimeout = fmt.Errorf("could not connect to database: timed out")
 
 // DB represents a wrapper for SQL DB providing extra methods.
 type DB struct {
@@ -88,17 +89,35 @@ func Open(driverName, dsn string) (*DB, error) {
 	}
 	uri, err := url.Parse(dsn)
 	if err != nil {
-		return nil, dsnParseErr(err)
+		return nil, errParseDSN(err)
 	}
 	log.Printf("opening database connection: %s (%s)", uri.Host, driverName)
 
-	db, err := sql.Open(driverName, dsn)
-	if err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	dbC := make(chan *sql.DB, 1)
+	errC := make(chan error, 1)
+
+	go func(driverName, dsn string) {
+		db, err := sql.Open(driverName, dsn)
+		if err != nil {
+			errC <- err
+			return
+		}
+		dbC <- db
+	}(driverName, dsn)
+
+	select {
+	case db := <-dbC:
+		// see: https://github.com/go-sql-driver/mysql/issues/674
+		db.SetMaxIdleConns(0)
+		return &DB{db}, nil
+	case err := <-errC:
 		return nil, err
+	case <-ctx.Done():
+		return nil, errTimeout
 	}
-	// see: https://github.com/go-sql-driver/mysql/issues/674
-	db.SetMaxIdleConns(0)
-	return &DB{db}, nil
 }
 
 // MustOpen will crash your program unless a database could be retrieved.
@@ -114,7 +133,7 @@ func MustOpen(driverName, dsn string) *DB {
 func OpenMigration(driverName, dsn, sourceURL string) (*migrate.Migrate, error) {
 	uri, err := url.Parse(dsn)
 	if err != nil {
-		return nil, dsnParseErr(err)
+		return nil, errParseDSN(err)
 	}
 	log.Printf("opening database migration: %s (%s)", uri.Host, driverName)
 
