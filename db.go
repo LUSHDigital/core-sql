@@ -22,7 +22,6 @@ const (
 	waitCooldown = 10 * time.Millisecond
 )
 
-var errParseDSN = func(err error) error { return fmt.Errorf("could not parse database dsn: %v", err) }
 var errTimeout = fmt.Errorf("could not connect to database: timed out")
 
 // DB represents a wrapper for SQL DB providing extra methods.
@@ -89,9 +88,10 @@ func Open(driverName, dsn string) (*DB, error) {
 	}
 	uri, err := url.Parse(dsn)
 	if err != nil {
-		return nil, errParseDSN(err)
+		log.Printf("could not parse database dsn: %v\n", err)
+	} else {
+		log.Printf("opening database connection: %s (%s)\n", uri.Host, driverName)
 	}
-	log.Printf("opening database connection: %s (%s)", uri.Host, driverName)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -133,9 +133,10 @@ func MustOpen(driverName, dsn string) *DB {
 func OpenMigration(driverName, dsn, sourceURL string) (*migrate.Migrate, error) {
 	uri, err := url.Parse(dsn)
 	if err != nil {
-		return nil, errParseDSN(err)
+		log.Printf("could not parse database dsn: %v\n", err)
+	} else {
+		log.Printf("opening database migration: %s (%s)", uri.Host, driverName)
 	}
-	log.Printf("opening database migration: %s (%s)", uri.Host, driverName)
 
 	migration, err := migrate.New(sourceURL, fmt.Sprintf("%s://%s", driverName, dsn))
 	if err != nil {
