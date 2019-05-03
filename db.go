@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -20,6 +21,8 @@ const (
 	waitTimeout  = 5 * time.Second
 	waitCooldown = 10 * time.Millisecond
 )
+
+var dsnParseErr = func(err error) error { return fmt.Errorf("could not parse database dsn: %v", err) }
 
 // DB represents a wrapper for SQL DB providing extra methods.
 type DB struct {
@@ -83,6 +86,12 @@ func Open(driverName, dsn string) (*DB, error) {
 	default:
 		dsn = fmt.Sprintf("%s://%s", driverName, dsn)
 	}
+	uri, err := url.Parse(dsn)
+	if err != nil {
+		return nil, dsnParseErr(err)
+	}
+	log.Printf("opening database connection: %s (%s)", uri.Host, driverName)
+
 	db, err := sql.Open(driverName, dsn)
 	if err != nil {
 		return nil, err
@@ -103,6 +112,12 @@ func MustOpen(driverName, dsn string) *DB {
 
 // OpenMigration will open a migration instance.
 func OpenMigration(driverName, dsn, sourceURL string) (*migrate.Migrate, error) {
+	uri, err := url.Parse(dsn)
+	if err != nil {
+		return nil, dsnParseErr(err)
+	}
+	log.Printf("opening database migration: %s (%s)", uri.Host, driverName)
+
 	migration, err := migrate.New(sourceURL, fmt.Sprintf("%s://%s", driverName, dsn))
 	if err != nil {
 		return nil, err
