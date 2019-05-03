@@ -81,16 +81,17 @@ func (db *DB) Wait() error {
 
 // Open will attempt to open a new database connection.
 func Open(driverName, dsn string) (*DB, error) {
+	uri, err := url.Parse(fmt.Sprintf("%s://%s", driverName, dsn))
+	if err != nil {
+		log.Printf("could not parse database dsn\n")
+	} else {
+		log.Printf("opening database connection: %s (%s)\n", uri.Host, driverName)
+	}
+
 	switch driverName {
 	case "mysql":
 	default:
 		dsn = fmt.Sprintf("%s://%s", driverName, dsn)
-	}
-	uri, err := url.Parse(dsn)
-	if err != nil {
-		log.Printf("could not parse database dsn: %v\n", err)
-	} else {
-		log.Printf("opening database connection: %s (%s)\n", uri.Host, driverName)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -131,14 +132,15 @@ func MustOpen(driverName, dsn string) *DB {
 
 // OpenMigration will open a migration instance.
 func OpenMigration(driverName, dsn, sourceURL string) (*migrate.Migrate, error) {
+	dsn = fmt.Sprintf("%s://%s", driverName, dsn)
 	uri, err := url.Parse(dsn)
 	if err != nil {
-		log.Printf("could not parse database dsn: %v\n", err)
+		log.Printf("could not parse database dsn\n")
 	} else {
-		log.Printf("opening database migration: %s (%s)", uri.Host, driverName)
+		log.Printf("opening database migration: %s (%s)\n", uri.Host, driverName)
 	}
 
-	migration, err := migrate.New(sourceURL, fmt.Sprintf("%s://%s", driverName, dsn))
+	migration, err := migrate.New(sourceURL, dsn)
 	if err != nil {
 		return nil, err
 	}
