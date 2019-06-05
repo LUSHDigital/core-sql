@@ -10,7 +10,7 @@ import (
 
 	"github.com/golang-migrate/migrate/v4"
 
-	// Since we are most likely going to be only retriving migrations from file source,
+	// Since we are most likely going to be only retrieving migrations from file source,
 	// it's prudent that we include this side effect inside of this package and not
 	// having to import it inside each and every project.
 	_ "github.com/golang-migrate/migrate/v4/source/file"
