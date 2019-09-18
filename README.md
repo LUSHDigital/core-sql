@@ -1,3 +1,7 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/LUSHDigital/core-sql/master/LICENSE) [![Go Report Card](https://goreportcard.com/badge/github.com/LUSHDigital/core-sql)](https://goreportcard.com/report/github.com/LUSHDigital/core-sql) [![Build Status](https://travis-ci.org/LUSHDigital/core-sql.svg?branch=master)](https://travis-ci.org/LUSHDigital/core-sql)
+[![GoDoc](https://godoc.org/github.com/LUSHDigital/core-sql?status.svg)](https://godoc.org/github.com/LUSHDigital/core-sql)
+
+
 # Core SQL
 This package is used to wrap the SQL standard library to satisfy the [health checking server](https://github.com/LUSHDigital/core/tree/master/workers/readysrv#ready-server) in the [LUSH core service library](https://github.com/LUSHDigital/core). We use [golang-migrate/migrate](github.com/golang-migrate/migrate) version 4 for migrations and treats it as a direct dependency.
 
