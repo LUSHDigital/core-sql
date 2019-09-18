@@ -13,7 +13,7 @@ type Pinger interface {
 	Ping() error
 }
 
-// Connector defines a common set of methods for dealing with the connection to an SQL datbase.
+// Connector defines a common set of methods for dealing with the connection to an SQL database.
 type Connector interface {
 	Driver() driver.Driver
 	SetMaxIdleConns(n int)
