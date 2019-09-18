@@ -3,9 +3,8 @@ package sqltest_test
 import (
 	"testing"
 
-	"github.com/LUSHDigital/core-sql/sqltest"
-
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/LUSHDigital/core-sql/sqltest"
 )
 
 func TestMySQLTruncator_TruncateTables(t *testing.T) {

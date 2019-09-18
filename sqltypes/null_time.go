@@ -1,17 +1,16 @@
 package sqltypes
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"reflect"
 	"strings"
 	"time"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 // NullTime aliases sql.NullTime
-type NullTime mysql.NullTime
+type NullTime sql.NullTime
 
 // MarshalJSON for NullTime
 func (n NullTime) MarshalJSON() ([]byte, error) {
@@ -64,7 +63,7 @@ func (n *NullTime) Scan(src interface{}) error {
 	// Set initial state for subsequent scans.
 	n.Valid = false
 
-	var a mysql.NullTime
+	var a sql.NullTime
 	if err := a.Scan(src); err != nil {
 		return err
 	}

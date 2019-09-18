@@ -3,8 +3,6 @@ package sqltypes
 import (
 	"database/sql"
 	"time"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 // ToNullString returns a new NullString
@@ -42,7 +40,7 @@ func ToNullBool(b *bool) NullBool {
 // ToNullTime creates a new NullTime
 func ToNullTime(t time.Time) NullTime {
 	if t == emptyTime {
-		return NullTime(mysql.NullTime{Valid: false})
+		return NullTime(sql.NullTime{Valid: false})
 	}
-	return NullTime(mysql.NullTime{Time: t, Valid: true})
+	return NullTime(sql.NullTime{Time: t, Valid: true})
 }
