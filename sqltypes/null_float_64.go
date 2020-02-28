@@ -5,14 +5,18 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"log"
 	"reflect"
 )
 
 // NullFloat64 aliases sql.NullFloat64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 type NullFloat64 sql.NullFloat64
 
 // MarshalJSON for NullFloat64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n NullFloat64) MarshalJSON() ([]byte, error) {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	var a *float64
 	if n.Valid {
 		a = &n.Float64
@@ -21,7 +25,9 @@ func (n NullFloat64) MarshalJSON() ([]byte, error) {
 }
 
 // Value for NullFloat64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n NullFloat64) Value() (driver.Value, error) {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if !n.Valid {
 		return nil, nil
 	}
@@ -29,7 +35,9 @@ func (n NullFloat64) Value() (driver.Value, error) {
 }
 
 // UnmarshalJSON for NullFloat64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n *NullFloat64) UnmarshalJSON(b []byte) error {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if bytes.EqualFold(b, nullLiteral) {
 		n.Valid = false
 		return nil
@@ -40,7 +48,9 @@ func (n *NullFloat64) UnmarshalJSON(b []byte) error {
 }
 
 // Scan for NullFloat64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n *NullFloat64) Scan(src interface{}) error {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	var a sql.NullFloat64
 	if err := a.Scan(src); err != nil {
 		return err

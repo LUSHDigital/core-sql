@@ -1,3 +1,7 @@
+// package sqltypes implements nullable types which are suitable for use with the database/sql package.
+//
+// Deprecated: use of this package is not recommended.
+// instead consider using: github.com/LUSHDigital/core-lush/nullable
 package sqltypes
 
 import (

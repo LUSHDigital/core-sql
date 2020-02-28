@@ -4,16 +4,20 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"log"
 	"reflect"
 	"strings"
 	"time"
 )
 
 // NullTime aliases sql.NullTime
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 type NullTime sql.NullTime
 
 // MarshalJSON for NullTime
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n NullTime) MarshalJSON() ([]byte, error) {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	var a *time.Time
 	if n.Valid {
 		a = &n.Time
@@ -22,7 +26,9 @@ func (n NullTime) MarshalJSON() ([]byte, error) {
 }
 
 // Value for NullTime
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n NullTime) Value() (driver.Value, error) {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if !n.Valid {
 		return nil, nil
 	}
@@ -30,7 +36,9 @@ func (n NullTime) Value() (driver.Value, error) {
 }
 
 // UnmarshalJSON for NullTime
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n *NullTime) UnmarshalJSON(b []byte) error {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	s := string(b)
 	s = strings.Trim(s, `"`)
 
@@ -59,7 +67,9 @@ func (n *NullTime) UnmarshalJSON(b []byte) error {
 }
 
 // Scan for NullTime
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func (n *NullTime) Scan(src interface{}) error {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	// Set initial state for subsequent scans.
 	n.Valid = false
 

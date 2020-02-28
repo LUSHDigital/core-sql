@@ -2,11 +2,14 @@ package sqltypes
 
 import (
 	"database/sql"
+	"log"
 	"time"
 )
 
 // ToNullString returns a new NullString
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func ToNullString(s *string) NullString {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if s == nil {
 		return NullString(sql.NullString{Valid: false})
 	}
@@ -14,7 +17,9 @@ func ToNullString(s *string) NullString {
 }
 
 // ToNullInt64 returns a new NullInt64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func ToNullInt64(i *int64) NullInt64 {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if i == nil {
 		return NullInt64(sql.NullInt64{Valid: false})
 	}
@@ -22,7 +27,9 @@ func ToNullInt64(i *int64) NullInt64 {
 }
 
 // ToNullFloat64 returns a new NullFloat64
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func ToNullFloat64(i *float64) NullFloat64 {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if i == nil {
 		return NullFloat64(sql.NullFloat64{Valid: false})
 	}
@@ -30,7 +37,9 @@ func ToNullFloat64(i *float64) NullFloat64 {
 }
 
 // ToNullBool creates a new NullBool
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func ToNullBool(b *bool) NullBool {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if b == nil {
 		return NullBool(sql.NullBool{Valid: false})
 	}
@@ -38,7 +47,9 @@ func ToNullBool(b *bool) NullBool {
 }
 
 // ToNullTime creates a new NullTime
+// Deprecated: consinder using github.com/LUSHDigital/core-lush/nullable
 func ToNullTime(t time.Time) NullTime {
+	log.Println("package sqltypes is deprecated: consinder using github.com/LUSHDigital/core-lush/nullable")
 	if t == emptyTime {
 		return NullTime(sql.NullTime{Valid: false})
 	}
