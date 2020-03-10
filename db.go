@@ -67,7 +67,7 @@ func (db *DB) Wait() error {
 		select {
 		case sem <- struct{}{}:
 			if tries >= waitMaxTries {
-				return fmt.Errorf("could not connect to datavase: attempt limit (%d) exceeded", waitMaxTries)
+				return fmt.Errorf("could not connect to database: attempt limit (%d) exceeded", waitMaxTries)
 			}
 			go ping(ctx)
 		case <-ctx.Done():
