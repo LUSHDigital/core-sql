@@ -73,8 +73,25 @@ func mustTruncateTables(t testing.TB, tr Truncator, tables ...string) {
 func truncateTables(t testing.TB, tr Truncator, agent Agent, tables ...string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+	ch := make(chan error)
 	for _, table := range tables {
-		if _, err := agent.ExecContext(ctx, fmt.Sprintf(truncateStmtFmt, table)); err != nil {
+		go func(table string) {
+			_, err := agent.ExecContext(ctx, fmt.Sprintf(truncateStmtFmt, table))
+			for {
+				select {
+				case <-ctx.Done():
+					return // returning not to leak the goroutine
+				case ch <- err:
+					return
+				}
+			}
+		}(table)
+	}
+	// This will read the channel once for each goroutine launched, thereby
+	// blocking until all goroutines have finished.
+	for range tables {
+		if err := <-ch; err != nil {
+			// The deferred cancel() will kill any blocked goroutines.
 			return err
 		}
 	}
