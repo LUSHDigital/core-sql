@@ -13,7 +13,7 @@ const (
 )
 
 var (
-	// TruncateTimeout is the time in seconds for truncation calls. (Default: 5 seconds)
+	// TruncateTimeout is the maximum time duration for truncation calls. (Default: 5 seconds)
 	TruncateTimeout = 5 * time.Second
 )
 
