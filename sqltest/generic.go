@@ -12,6 +12,11 @@ const (
 	showTablesStmt  = "SHOW TABLES"
 )
 
+var (
+	// TruncateTimeout is the maximum time duration for truncation calls. (Default: 5 seconds)
+	TruncateTimeout = 5 * time.Second
+)
+
 // GenericTruncator represents a common set of methods for truncating a database during testing.
 type GenericTruncator struct {
 	agent Agent
@@ -44,7 +49,7 @@ func mustTruncateAll(t testing.TB, tr Truncator) {
 }
 
 func truncateAll(t testing.TB, tr Truncator, agent Agent) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), TruncateTimeout)
 	defer cancel()
 
 	rows, err := agent.QueryContext(ctx, showTablesStmt)
@@ -71,7 +76,7 @@ func mustTruncateTables(t testing.TB, tr Truncator, tables ...string) {
 }
 
 func truncateTables(t testing.TB, tr Truncator, agent Agent, tables ...string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), TruncateTimeout)
 	defer cancel()
 	ch := make(chan error)
 	for _, table := range tables {
