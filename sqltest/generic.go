@@ -9,7 +9,7 @@ import (
 
 const (
 	truncateStmtFmt = "TRUNCATE TABLE %s"
-	showTablesStmt  = "SHOW TABLES"
+	showTablesStmt  = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE'"
 )
 
 var (
