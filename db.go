@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	// Since we are most likely going to be only retrieving migrations from file source,
 	// it's prudent that we include this side effect inside of this package and not
@@ -24,11 +26,83 @@ const (
 var errTimeout = fmt.Errorf("could not connect to database: timed out")
 
 // DB represents a wrapper for SQL DB providing extra methods.
+// DB satisfies the sql.DB interface.
 type DB struct {
 	*sql.DB
+	hist prometheus.Histogram
 }
 
-// Check will attempt to ping the database to see if the connection is still alive.
+// new creates a new DB, wrapping the provided sql.DB and adding metrics.
+func newDB(driverName string, db *sql.DB) *DB {
+	hist := promauto.NewHistogram(prometheus.HistogramOpts{
+		Name:        "database_query_roundtrip_duration_seconds",
+		Help:        "A histogram of roundtrip query times for this database.",
+		ConstLabels: map[string]string{"driver": driverName},
+		// Divide buckets by doubling the threshold, in ms: 5, 10, 20, 40, 80, 160, 320.
+		Buckets: prometheus.ExponentialBuckets(.05, 2, 7),
+	})
+
+	return &DB{
+		DB:   db,
+		hist: hist,
+	}
+}
+
+func (db *DB) observe(start time.Time) {
+	db.hist.Observe(float64(time.Since(start).Milliseconds() / 1000))
+}
+
+// Exec executes a query without returning any rows. The args are for any placeholder parameters in the query.
+// The duration of the call to the underlying database is added to the metrics for this DB.
+func (db *DB) Exec(query string, args ...interface{}) (sql.Result, error) {
+	start := time.Now()
+	defer db.observe(start)
+	return db.DB.Exec(query, args...)
+}
+
+// ExecContext executes a query without returning any rows. The args are for any placeholder parameters in the query.
+// The duration of the call to the underlying database is added to the metrics for this DB.
+func (db *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+	start := time.Now()
+	defer db.observe(start)
+	return db.DB.ExecContext(ctx, query, args...)
+}
+
+// Query executes a query that returns rows, typically a SELECT. The args are for any placeholder parameters in the query.
+// The duration of the call to the underlying database is added to the metrics for this DB.
+func (db *DB) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	start := time.Now()
+	defer db.observe(start)
+	return db.DB.Query(query, args...)
+}
+
+// QueryContext executes a query that returns rows, typically a SELECT. The args are for any placeholder parameters in the query.
+// The duration of the call to the underlying database is added to the metrics for this DB.
+func (db *DB) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	start := time.Now()
+	defer db.observe(start)
+	return db.DB.QueryContext(ctx, query, args...)
+}
+
+// QueryRow executes a query that is expected to return at most one row. QueryRow always returns a non-nil value.
+// Errors are deferred until Row's Scan method is called. If the query selects no rows, the *Row's Scan will return ErrNoRows.
+// Otherwise, the *Row's Scan scans the first selected row and discards the rest.
+// The duration of the call to the underlying database is added to the metrics for this DB.
+func (db *DB) QueryRow(query string, args ...interface{}) *sql.Row {
+	start := time.Now()
+	defer db.observe(start)
+	return db.DB.QueryRow(query, args...)
+}
+
+// QueryRowContext executes a query that is expected to return at most one row. QueryRowContext always returns a non-nil value.
+// Errors are deferred until Row's Scan method is called. If the query selects no rows, the *Row's Scan will return ErrNoRows.
+// Otherwise, the *Row's Scan scans the first selected row and discards the rest.
+// The duration of the call to the underlying database is added to the metrics for this DB.
+func (db *DB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	start := time.Now()
+	defer db.observe(start)
+	return db.DB.QueryRowContext(ctx, query, args...)
+}
 func (db *DB) Check() ([]string, bool) {
 	if err := db.Ping(); err != nil {
 		return []string{err.Error()}, false
@@ -105,7 +179,7 @@ func Open(driverName, dsn string) (*DB, error) {
 	case db := <-dbC:
 		// see: https://github.com/go-sql-driver/mysql/issues/674
 		db.SetMaxIdleConns(0)
-		return &DB{db}, nil
+		return newDB(driverName, db), nil
 	case err := <-errC:
 		return nil, err
 	case <-ctx.Done():
